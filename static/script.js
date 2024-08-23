@@ -1,1 +1,15 @@
-file://%20script.jsdocument.addeventlistener('domcontentloaded',%20function()%20{%20%20%20%20//%20Add%20interactivity%20here%20%20%20%20//%20For%20example,%20you%20can%20animate%20buttons%20or%20implement%20form%20validation%7D);
+function updateSpeed(speedMbps, speedMBps) {
+    const downloadSpeedElem = document.getElementById('download-speed');
+    const downloadSpeedMBElem = document.getElementById('download-speed-MB');
+    if (downloadSpeedElem && downloadSpeedMBElem) {
+        downloadSpeedElem.textContent = speedMbps.toFixed(2);
+        downloadSpeedMBElem.textContent = speedMBps.toFixed(2);
+    }
+
+    const uploadSpeedElem = document.getElementById('upload-speed');
+    const uploadSpeedMBElem = document.getElementById('upload-speed-MB');
+    if (uploadSpeedElem && uploadSpeedMBElem) {
+        uploadSpeedElem.textContent = speedMbps.toFixed(2);
+        uploadSpeedMBElem.textContent = speedMBps.toFixed(2);
+    }
+}

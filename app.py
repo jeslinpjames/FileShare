@@ -4,6 +4,7 @@ import random
 import string
 from io import BytesIO
 from urllib.parse import quote
+import time
 
 app = Flask(__name__)
 active_transfers = {}
@@ -42,17 +43,17 @@ def download_file():
             transfer_info = active_transfers.pop(code)
             file_content = transfer_info['file_content']
             filename = transfer_info['filename']
-            file_size = transfer_info['file_size']
 
             # Encode the filename for the Content-Disposition header
             quoted_filename = quote(filename)
 
+            # Stream the file back without interleaving any HTML or JavaScript
             return Response(
                 stream_file(file_content),
                 content_type='application/octet-stream',
                 headers={
                     "Content-Disposition": f"attachment;filename*=UTF-8''{quoted_filename}",
-                    "Content-Length": str(file_size)
+                    "Content-Length": str(len(file_content.getvalue()))
                 }
             )
         else:

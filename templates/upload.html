@@ -12,8 +12,9 @@
         {% if code %}
             <p>Your file transfer code is: <span class="code">{{ code }}</span></p>
             <p>Share this code with the recipient to allow them to download the file.</p>
+            <p>Upload Speed: <span id="upload-speed">0</span> Mbps | <span id="upload-speed-MB">0</span> MBps</p>
         {% else %}
-            <form action="" method="POST" enctype="multipart/form-data">
+            <form id="upload-form" action="" method="POST" enctype="multipart/form-data">
                 <input type="file" name="file" required><br><br>
                 <input type="submit" value="Upload" class="button">
             </form>
@@ -21,5 +22,6 @@
         <br>
         <a href="{{ url_for('index') }}" class="button">Back to Home</a>
     </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
