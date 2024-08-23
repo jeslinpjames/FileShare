@@ -1,0 +1,1 @@
+file://%20script.jsdocument.addeventlistener('domcontentloaded',%20function()%20{%20%20%20%20//%20Add%20interactivity%20here%20%20%20%20//%20For%20example,%20you%20can%20animate%20buttons%20or%20implement%20form%20validation%7D);
