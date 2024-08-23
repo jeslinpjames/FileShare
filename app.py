@@ -3,6 +3,7 @@ import os
 import random
 import string
 from io import BytesIO
+from urllib.parse import quote
 
 app = Flask(__name__)
 active_transfers = {}
@@ -24,7 +25,12 @@ def upload_file():
             file_content = BytesIO(file.read())
             file_content.seek(0)  # Rewind the file to the beginning
             code = generate_random_code()
-            active_transfers[code] = file_content
+            # Store the file content and filename in the active transfers dictionary
+            active_transfers[code] = {
+                'file_content': file_content,
+                'filename': file.filename,
+                'file_size': len(file_content.getvalue())  # Store the size of the file
+            }
             return render_template('upload.html', code=code)
     return render_template('upload.html', code=None)
 
@@ -33,8 +39,22 @@ def download_file():
     if request.method == 'POST':
         code = request.form['code']
         if code in active_transfers:
-            file_content = active_transfers.pop(code)  # Get the in-memory file content
-            return Response(stream_file(file_content), content_type='application/octet-stream')
+            transfer_info = active_transfers.pop(code)
+            file_content = transfer_info['file_content']
+            filename = transfer_info['filename']
+            file_size = transfer_info['file_size']
+
+            # Encode the filename for the Content-Disposition header
+            quoted_filename = quote(filename)
+
+            return Response(
+                stream_file(file_content),
+                content_type='application/octet-stream',
+                headers={
+                    "Content-Disposition": f"attachment;filename*=UTF-8''{quoted_filename}",
+                    "Content-Length": str(file_size)
+                }
+            )
         else:
             return "Invalid code or the transfer has expired.", 400
     return render_template('download.html')
