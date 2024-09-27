@@ -9,7 +9,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 active_transfers = {}
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}}, expose_headers=["Content-Disposition"])
 
 def generate_random_code(length=6):
     """Generates a random alphanumeric code."""
@@ -33,12 +33,18 @@ def upload_file():
 @app.route('/download', methods=['POST'])
 def download_file():
     data = request.get_json()
+    print("Received data:", data)  
     code = data.get('code')
+    if not code:
+        return jsonify({'error': 'No code provided'}), 400
+
     if code in active_transfers:
         transfer_info = active_transfers.pop(code)
         file_content = transfer_info['file_content']
         filename = transfer_info['filename']
         quoted_filename = quote(filename)
+
+        print(f"Downloading file: {filename}")
 
         return Response(
             stream_file(file_content),
@@ -49,6 +55,7 @@ def download_file():
             }
         )
     else:
+        print("Invalid code or transfer expired")
         return jsonify({'error': 'Invalid code or the transfer has expired'}), 400
 
 def stream_file(file_content):
