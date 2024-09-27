@@ -39,7 +39,7 @@ const Upload = () => {
     const startTime = Date.now();
 
     try {
-      const response = await fetch('http://localhost:5000/upload', {
+      const response = await fetch('http://172.16.66.82:5000/upload', {
         method: 'POST',
         body: formData,
       });

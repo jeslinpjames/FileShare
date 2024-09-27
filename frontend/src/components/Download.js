@@ -10,57 +10,73 @@ const Download = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-
+  
     const storedData = JSON.parse(localStorage.getItem('uploadResponse'));
-
+  
     if (!storedData || storedData.code !== code) {
       setError('Invalid code or the transfer has expired');
       return;
     }
-
+  
     try {
       const startTime = Date.now();
-      const response = await fetch('http://localhost:5000/download', {
+      const response = await fetch('http://172.16.66.82:5000/download', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ code }),
       });
+      console.log("Sending code:", code);
 
       if (!response.ok) {
         throw new Error('Invalid code or the transfer has expired');
       }
-
+  
+      // Get filename from the response header
+      const disposition = response.headers.get('Content-Disposition');
+      let filename = 'downloaded_file'; // Default fallback name
+  
+      console.log('Content-Disposition header:', disposition);
+  
+      if (disposition) {
+        // Updated regex to handle URL-encoded filenames
+        const filenameRegex = /filename\*?=['"]?UTF-8''([^;\n]+)['"]?/i;
+        const matches = filenameRegex.exec(disposition);
+        if (matches !== null && matches[1]) {
+          filename = decodeURIComponent(matches[1]);  // Decode URL-encoded filename
+          console.log('Parsed filename:', filename);  // Log the parsed filename
+        }
+      }
+  
       const blob = await response.blob();
       const endTime = Date.now();
       const duration = (endTime - startTime) / 1000; // in seconds
       const speedMbps = (blob.size * 8) / (1000000 * duration);
       const speedMBps = blob.size / (1000000 * duration);
-
+  
       setDownloadSpeed({
         mbps: speedMbps.toFixed(2),
         MBps: speedMBps.toFixed(2),
       });
-
-      const filename = storedData.name || 'downloaded_file'; // Fallback filename if not found
-
+  
+      // Trigger file download with the correct filename
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = filename; // Use the filename from local storage
+      a.download = filename;  // Use the filename from backend
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-
+  
       localStorage.removeItem('uploadResponse');
     } catch (error) {
       setError(error.message);
     }
   };
-
+ 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
       <h1 className="text-4xl font-bold mb-6">Download a File</h1>
