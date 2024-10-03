@@ -73,7 +73,15 @@ const Upload = () => {
             Upload Speed: {uploadSpeed.mbps} Mbps | {uploadSpeed.MBps} MBps
           </p>
           <div className="mt-4 flex justify-center">
-            <QRCodeSVG value={`${networkUrl}/download?code=${code}`} size={128} />
+            {/* <QRCodeSVG value={`${networkUrl}/download?code=${code}`} size={256} /> */}
+            <QRCodeSVG
+              value={code}
+              size={256}
+              fgColor="#00000"  // Custom foreground color
+              bgColor="#ffffff"  // Custom background color
+              level="H"          // Error correction level (L, M, Q, H)
+              style={{ borderRadius: '',padding:'10px' ,backgroundColor:'white'}} // Optional styling for rounded edges
+            />
           </div>
           <p className="mt-2 mb-5">Scan this QR code to download the file.</p>
           <Link to="/" className="mt-4 bg-blue-400 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">

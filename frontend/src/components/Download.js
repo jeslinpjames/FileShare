@@ -1,23 +1,62 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Alert from './Alert';
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 const Download = () => {
   const [code, setCode] = useState('');
   const [downloadSpeed, setDownloadSpeed] = useState({ mbps: 0, MBps: 0 });
   const [error, setError] = useState(null);
+  const [scanResult, setScanResult] = useState('');
+  const [isScanning, setIsScanning] = useState(false);
   const location = useLocation();
+  const scannerRef = useRef(null);
 
   useEffect(() => {
-    // Extract code from the query parameters in the URL
     const params = new URLSearchParams(location.search);
     const scannedCode = params.get('code');
 
     if (scannedCode) {
       setCode(scannedCode);
-      handleSubmit(scannedCode); // Trigger download automatically if code is present
+      handleSubmit(scannedCode);
     }
   }, [location.search]);
+
+  useEffect(() => {
+    if (isScanning && !scannerRef.current) {
+      scannerRef.current = new Html5QrcodeScanner('reader', {
+        qrbox: {
+          width: 250,
+          height: 250
+        },
+        fps: 6
+      });
+
+      scannerRef.current.render(handleScanSuccess, handleScanError);
+    }
+
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.clear();
+        scannerRef.current = null;
+      }
+    };
+  }, [isScanning]);
+
+  function handleScanSuccess(result) {
+    if (scannerRef.current) {
+      scannerRef.current.clear();
+      scannerRef.current = null;
+    }
+    setScanResult(result);
+    setCode(result);
+    setIsScanning(false);
+    handleSubmit(result);
+  }
+
+  function handleScanError(err) {
+    console.warn(err);
+  }
 
   const handleSubmit = async (inputCode) => {
     setError(null);
@@ -31,33 +70,18 @@ const Download = () => {
         },
         body: JSON.stringify({ code: inputCode || code }),
       });
-      console.log("Sending code:", code);
+      console.log("Sending code:", inputCode || code);
 
       if (!response.ok) {
         throw new Error('Invalid code or the transfer has expired');
       }
-  
-      // Get filename from the response header
-      // const disposition = response.headers.get('Content-Disposition');
-  
-      // console.log('Content-Disposition header:', disposition);
-  
-      // if (disposition) {
-      //   // Updated regex to handle URL-encoded filenames
-      //   const filenameRegex = /filename\*?=['"]?UTF-8''([^;\n]+)['"]?/i;
-      //   const matches = filenameRegex.exec(disposition);
-      //   if (matches !== null && matches[1]) {
-      //     filename = decodeURIComponent(matches[1]);  // Decode URL-encoded filename
-      //     console.log('Parsed filename:', filename);  // Log the parsed filename
-      //   }
-      // }
-  
+
       const blob = await response.blob();
       const endTime = Date.now();
-      const duration = (endTime - startTime) / 1000; // in seconds
+      const duration = (endTime - startTime) / 1000;
       const speedMbps = (blob.size * 8) / (1000000 * duration);
       const speedMBps = blob.size / (1000000 * duration);
-  
+
       setDownloadSpeed({
         mbps: speedMbps.toFixed(2),
         MBps: speedMBps.toFixed(2),
@@ -74,11 +98,16 @@ const Download = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-    } catch (error) {
-      setError(error.message);
+    } catch (err) {
+      setError(err.message);
     }
   };
- 
+
+  const toggleScanner = () => {
+    setIsScanning(!isScanning);
+    setScanResult('');
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
       <h1 className="text-4xl font-bold mb-6">Download a File</h1>
@@ -101,6 +130,13 @@ const Download = () => {
           >
             Download
           </button>
+          <button
+            type="button"
+            onClick={toggleScanner}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
+          >
+            {isScanning ? 'Stop Scanning' : 'Scan QR Code'}
+          </button>
           <Link
             to="/"
             className="bg-blue-400 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
@@ -108,6 +144,8 @@ const Download = () => {
             Back to Home
           </Link>
         </div>
+        {isScanning && <div id='reader'></div>}
+        {scanResult && <div className="mt-4">Scanned Code: {scanResult}</div>}
       </form>
       {error && <Alert variant="error">{error}</Alert>}
       {downloadSpeed.mbps > 0 && (
