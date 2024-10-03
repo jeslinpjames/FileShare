@@ -38,20 +38,19 @@ const Download = () => {
       }
   
       // Get filename from the response header
-      const disposition = response.headers.get('Content-Disposition');
-      let filename = 'downloaded_file'; // Default fallback name
+      // const disposition = response.headers.get('Content-Disposition');
   
-      console.log('Content-Disposition header:', disposition);
+      // console.log('Content-Disposition header:', disposition);
   
-      if (disposition) {
-        // Updated regex to handle URL-encoded filenames
-        const filenameRegex = /filename\*?=['"]?UTF-8''([^;\n]+)['"]?/i;
-        const matches = filenameRegex.exec(disposition);
-        if (matches !== null && matches[1]) {
-          filename = decodeURIComponent(matches[1]);  // Decode URL-encoded filename
-          console.log('Parsed filename:', filename);  // Log the parsed filename
-        }
-      }
+      // if (disposition) {
+      //   // Updated regex to handle URL-encoded filenames
+      //   const filenameRegex = /filename\*?=['"]?UTF-8''([^;\n]+)['"]?/i;
+      //   const matches = filenameRegex.exec(disposition);
+      //   if (matches !== null && matches[1]) {
+      //     filename = decodeURIComponent(matches[1]);  // Decode URL-encoded filename
+      //     console.log('Parsed filename:', filename);  // Log the parsed filename
+      //   }
+      // }
   
       const blob = await response.blob();
       const endTime = Date.now();
