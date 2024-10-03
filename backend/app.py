@@ -5,11 +5,14 @@ import string
 from io import BytesIO
 from urllib.parse import quote
 from flask_cors import CORS
+import json
 
 
 app = Flask(__name__)
 active_transfers = {}
 CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
+
 
 def generate_random_code(length=6):
     """Generates a random alphanumeric code."""
@@ -27,20 +30,32 @@ def upload_file():
             'filename': file.filename,
             'file_size': len(file_content.getvalue())
         }
-        return jsonify({'code': code})
+        json_data = {
+            'filename': file.filename,
+            'code':code
+        }
+        with open('transfer_info.json','w') as json_file:
+            json.dump(json_data,json_file)
+        return jsonify({'code': code,'name':file.filename})
     return jsonify({'error': 'No file provided'}), 400
 
 @app.route('/download', methods=['POST'])
 def download_file():
     data = request.get_json()
     code = data.get('code')
+    
+    # Load the filename from the JSON file
+    with open('transfer_info.json', 'r') as json_file:
+        json_data = json.load(json_file)
+        file_name = json_data['filename']
+    
     if code in active_transfers:
         transfer_info = active_transfers.pop(code)
         file_content = transfer_info['file_content']
         filename = transfer_info['filename']
         quoted_filename = quote(filename)
 
-        return Response(
+        response = Response(
             stream_file(file_content),
             content_type='application/octet-stream',
             headers={
@@ -48,8 +63,12 @@ def download_file():
                 "Content-Length": str(len(file_content.getvalue()))
             }
         )
+        response.headers['Filename'] = file_name
+        response.headers['Access-Control-Expose-Headers'] = 'Filename'
+        return response
     else:
         return jsonify({'error': 'Invalid code or the transfer has expired'}), 400
+
 
 def stream_file(file_content):
     while True:
