@@ -1,31 +1,35 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import Alert from './Alert';
 
 const Download = () => {
   const [code, setCode] = useState('');
   const [downloadSpeed, setDownloadSpeed] = useState({ mbps: 0, MBps: 0 });
   const [error, setError] = useState(null);
+  const location = useLocation();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
+  useEffect(() => {
+    // Extract code from the query parameters in the URL
+    const params = new URLSearchParams(location.search);
+    const scannedCode = params.get('code');
 
-    const storedData = JSON.parse(localStorage.getItem('uploadResponse'));
-
-    if (!storedData || storedData.code !== code) {
-      setError('Invalid code or the transfer has expired');
-      return;
+    if (scannedCode) {
+      setCode(scannedCode);
+      handleSubmit(scannedCode); // Trigger download automatically if code is present
     }
+  }, [location.search]);
+
+  const handleSubmit = async (inputCode) => {
+    setError(null);
 
     try {
       const startTime = Date.now();
-      const response = await fetch('http://localhost:5000/download', {
+      const response = await fetch(`/download`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code: inputCode || code }),
       });
 
       if (!response.ok) {
@@ -43,19 +47,17 @@ const Download = () => {
         MBps: speedMBps.toFixed(2),
       });
 
-      const filename = storedData.name || 'downloaded_file'; // Fallback filename if not found
+      const filename = response.headers.get('Filename') || 'downloaded_file';
 
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = filename; // Use the filename from local storage
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-
-      localStorage.removeItem('uploadResponse');
     } catch (error) {
       setError(error.message);
     }
@@ -64,7 +66,7 @@ const Download = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
       <h1 className="text-4xl font-bold mb-6">Download a File</h1>
-      <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md space-y-4">
+      <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md space-y-4">
         <label htmlFor="code" className="block text-lg mb-2">
           Enter the code provided by the uploader:
         </label>
