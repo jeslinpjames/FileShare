@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Alert from './Alert';
 import { Html5QrcodeScanner } from "html5-qrcode";
@@ -12,53 +12,7 @@ const Download = () => {
   const location = useLocation();
   const scannerRef = useRef(null);
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const scannedCode = params.get('code');
-
-    if (scannedCode) {
-      setCode(scannedCode);
-      handleSubmit(scannedCode);
-    }
-  }, [location.search]);
-
-  useEffect(() => {
-    if (isScanning && !scannerRef.current) {
-      scannerRef.current = new Html5QrcodeScanner('reader', {
-        qrbox: {
-          width: 250,
-          height: 250
-        },
-        fps: 6
-      });
-
-      scannerRef.current.render(handleScanSuccess, handleScanError);
-    }
-
-    return () => {
-      if (scannerRef.current) {
-        scannerRef.current.clear();
-        scannerRef.current = null;
-      }
-    };
-  }, [isScanning]);
-
-  function handleScanSuccess(result) {
-    if (scannerRef.current) {
-      scannerRef.current.clear();
-      scannerRef.current = null;
-    }
-    setScanResult(result);
-    setCode(result);
-    setIsScanning(false);
-    handleSubmit(result);
-  }
-
-  function handleScanError(err) {
-    console.warn(err);
-  }
-
-  const handleSubmit = async (inputCode) => {
+  const handleSubmit = useCallback(async (inputCode) => {
     setError(null);
 
     try {
@@ -101,7 +55,53 @@ const Download = () => {
     } catch (err) {
       setError(err.message);
     }
+  }, [code]);
+
+  const handleScanSuccess = useCallback((result) => {
+    if (scannerRef.current) {
+      scannerRef.current.clear();
+      scannerRef.current = null;
+    }
+    setScanResult(result);
+    setCode(result);
+    setIsScanning(false);
+    handleSubmit(result);
+  }, [handleSubmit]);
+
+  const handleScanError = (err) => {
+    console.warn(err);
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const scannedCode = params.get('code');
+
+    if (scannedCode) {
+      setCode(scannedCode);
+      handleSubmit(scannedCode);
+    }
+  }, [location.search, handleSubmit]);
+
+  useEffect(() => {
+    if (isScanning && !scannerRef.current) {
+      scannerRef.current = new Html5QrcodeScanner('reader', {
+        qrbox: {
+          width: 250,
+          height: 250
+        },
+        fps: 6
+      });
+
+      scannerRef.current.render(handleScanSuccess, handleScanError);
+    }
+
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.clear();
+        scannerRef.current = null;
+      }
+    };
+  }, [isScanning, handleScanSuccess]);
 
   const toggleScanner = () => {
     setIsScanning(!isScanning);

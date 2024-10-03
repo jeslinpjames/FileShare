@@ -56,8 +56,8 @@ const Upload = () => {
   };
 
   // Use the fixed IP for the QR code
-  const { protocol, hostname, port } = window.location;
-  const networkUrl = `${protocol}//${hostname}:${port || 3000}`;
+  // const { protocol, hostname, port } = window.location;
+  // const networkUrl = `${protocol}//${hostname}:${port || 3000}`;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
