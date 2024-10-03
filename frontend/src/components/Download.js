@@ -31,17 +31,34 @@ const Download = () => {
         },
         body: JSON.stringify({ code: inputCode || code }),
       });
+      console.log("Sending code:", code);
 
       if (!response.ok) {
         throw new Error('Invalid code or the transfer has expired');
       }
-
+  
+      // Get filename from the response header
+      const disposition = response.headers.get('Content-Disposition');
+      let filename = 'downloaded_file'; // Default fallback name
+  
+      console.log('Content-Disposition header:', disposition);
+  
+      if (disposition) {
+        // Updated regex to handle URL-encoded filenames
+        const filenameRegex = /filename\*?=['"]?UTF-8''([^;\n]+)['"]?/i;
+        const matches = filenameRegex.exec(disposition);
+        if (matches !== null && matches[1]) {
+          filename = decodeURIComponent(matches[1]);  // Decode URL-encoded filename
+          console.log('Parsed filename:', filename);  // Log the parsed filename
+        }
+      }
+  
       const blob = await response.blob();
       const endTime = Date.now();
       const duration = (endTime - startTime) / 1000; // in seconds
       const speedMbps = (blob.size * 8) / (1000000 * duration);
       const speedMBps = blob.size / (1000000 * duration);
-
+  
       setDownloadSpeed({
         mbps: speedMbps.toFixed(2),
         MBps: speedMBps.toFixed(2),
@@ -62,7 +79,7 @@ const Download = () => {
       setError(error.message);
     }
   };
-
+ 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
       <h1 className="text-4xl font-bold mb-6">Download a File</h1>

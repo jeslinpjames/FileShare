@@ -42,6 +42,7 @@ def upload_file():
 @app.route('/download', methods=['POST'])
 def download_file():
     data = request.get_json()
+    print("Received data:", data)  
     code = data.get('code')
     
     # Load the filename from the JSON file
@@ -55,6 +56,8 @@ def download_file():
         filename = transfer_info['filename']
         quoted_filename = quote(filename)
 
+        print(f"Downloading file: {filename}")
+
         response = Response(
             stream_file(file_content),
             content_type='application/octet-stream',
@@ -67,6 +70,7 @@ def download_file():
         response.headers['Access-Control-Expose-Headers'] = 'Filename'
         return response
     else:
+        print("Invalid code or transfer expired")
         return jsonify({'error': 'Invalid code or the transfer has expired'}), 400
 
 
