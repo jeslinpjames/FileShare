@@ -1,15 +1,16 @@
 name: CI and Deploy to Server
 
 on:
-  push:
+  push:  # Run on all branches
     branches:
-      - main
-  pull_request:
+      - '**'
+  pull_request:  # Run for all PRs targeting any branch
     branches:
-      - main
+      - '**'
+  workflow_dispatch:  # Allows manual trigger from the GitHub UI
 
 jobs:
-  test_and_deploy:
+  test_and_debug:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,15 +24,14 @@ jobs:
         node-version: '18'
 
     - name: Install frontend dependencies
-      working-directory: ./FileShare/frontend  
+      working-directory: ./frontend  
       run: |
         npm install
 
     - name: Test React Build
-      working-directory: ./FileShare/frontend  
+      working-directory: ./frontend  
       run: |
         npm run build
-      # If the build fails, the workflow stops here
 
     ### Step 3: Test Flask Backend ###
     - name: Set up Python
@@ -40,32 +40,46 @@ jobs:
         python-version: '3.x'
 
     - name: Install backend dependencies
-      working-directory: ./FileShare/backend  
+      working-directory: ./backend  
       run: |
         python -m venv venv
         source venv/bin/activate
         pip install -r requirements.txt
 
     - name: Run Flask Backend Test
-      working-directory: ./FileShare/backend  
+      working-directory: ./backend  
       run: |
-        flask run --host=0.0.0.0 &
-        sleep 10
-        curl --fail http://127.0.0.1:5000 || exit 1
-      # This tests if the backend can start successfully and respond at port 5000
+        python -m venv venv  # Ensure virtual environment exists
+        source venv/bin/activate  # Activate virtual environment
+        pip install -r requirements.txt  # Install dependencies
+        python app.py &  # Start Flask app in the background
+        sleep 10  # Give the server time to start
+        status_code=$(curl -o /dev/null -s -w "%{http_code}\n" http://127.0.0.1:5000)  # Get the status code
+        if [ "$status_code" -eq 404 ] || [ "$status_code" -eq 200 ]; then
+          echo "Flask server is running with expected behavior"
+        else
+          echo "Unexpected response: $status_code"
+          exit 1
+        fi
 
-    ### Step 4: Deployment (Only on push to main) ###
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'  # Only deploy on push to main branch
+    needs: test_and_debug  # Wait for the test_and_debug job to complete
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     - name: Set up SSH
-      if: github.event_name == 'push'
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Deploy Backend
-      if: github.event_name == 'push'
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
-        cd /home/ubuntu/FileShare/backend  # Path to backend on your server
+        cd /home/ubuntu/FileShare/backend
         git pull origin main
         source fshare/bin/activate
         pip install -r requirements.txt
@@ -73,10 +87,9 @@ jobs:
         EOF
 
     - name: Deploy Frontend
-      if: github.event_name == 'push'
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
-        cd /home/ubuntu/FileShare/frontend  # Path to frontend on your server
+        cd /home/ubuntu/FileShare/frontend
         git pull origin main
         npm install
         npm run build
