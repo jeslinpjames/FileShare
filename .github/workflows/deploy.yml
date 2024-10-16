@@ -39,22 +39,20 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Install backend dependencies
+    - name: Install backend dependencies and run tests
       working-directory: ./backend  
       run: |
-        python -m venv venv
-        source venv/bin/activate
-        pip install -r requirements.txt
-
-    - name: Run Flask Backend Tests with pytest
-      working-directory: ./backend  
-      run: |
-        source venv/bin/activate  # Activate the virtual environment
-        pytest --cov=app tests/   # Run pytest with code coverage
+        python -m venv venv  
+        . venv/bin/activate  
+        pip install -r requirements.txt  
+        pip install pytest pytest-cov  
+        export PYTHONPATH=$PYTHONPATH:$(pwd)  
+        pytest --cov=app tests/  
 
     - name: Check Flask Server Status
       working-directory: ./backend  
       run: |
+        . venv/bin/activate  # Activate virtual environment
         python app.py &  # Start Flask app in the background
         sleep 10  # Wait for server to start
         status_code=$(curl -o /dev/null -s -w "%{http_code}\n" http://127.0.0.1:5000)
