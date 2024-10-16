@@ -17,7 +17,7 @@ const Download = () => {
 
     try {
       const startTime = Date.now();
-      const response = await fetch(`/download`, {
+      const response = await fetch(`http://13.201.186.207:5000/download`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

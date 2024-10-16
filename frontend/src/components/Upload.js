@@ -25,7 +25,7 @@ const Upload = () => {
     const startTime = Date.now();
 
     try {
-      const response = await fetch(`/upload`, {
+      const response = await fetch(`http://13.201.186.207:5000/upload`, {
         method: 'POST',
         body: formData,
       });
