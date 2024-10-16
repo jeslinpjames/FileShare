@@ -1,13 +1,13 @@
 name: CI and Deploy to Server
 
 on:
-  push:  # Run on all branches
+  push:
     branches:
       - '**'
-  pull_request:  # Run for all PRs targeting any branch
+  pull_request:
     branches:
       - '**'
-  workflow_dispatch:  # Allows manual trigger from the GitHub UI
+  workflow_dispatch:
 
 jobs:
   test_and_debug:
@@ -46,15 +46,18 @@ jobs:
         source venv/bin/activate
         pip install -r requirements.txt
 
-    - name: Run Flask Backend Test
+    - name: Run Flask Backend Tests with pytest
       working-directory: ./backend  
       run: |
-        python -m venv venv  # Ensure virtual environment exists
-        source venv/bin/activate  # Activate virtual environment
-        pip install -r requirements.txt  # Install dependencies
+        source venv/bin/activate  # Activate the virtual environment
+        pytest --cov=app tests/   # Run pytest with code coverage
+
+    - name: Check Flask Server Status
+      working-directory: ./backend  
+      run: |
         python app.py &  # Start Flask app in the background
-        sleep 10  # Give the server time to start
-        status_code=$(curl -o /dev/null -s -w "%{http_code}\n" http://127.0.0.1:5000)  # Get the status code
+        sleep 10  # Wait for server to start
+        status_code=$(curl -o /dev/null -s -w "%{http_code}\n" http://127.0.0.1:5000)
         if [ "$status_code" -eq 404 ] || [ "$status_code" -eq 200 ]; then
           echo "Flask server is running with expected behavior"
         else
@@ -63,8 +66,8 @@ jobs:
         fi
 
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'  # Only deploy on push to main branch
-    needs: test_and_debug  # Wait for the test_and_debug job to complete
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: test_and_debug
     runs-on: ubuntu-latest
 
     steps:
