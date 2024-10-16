@@ -1,0 +1,84 @@
+name: CI and Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    ### Step 2: Test React Frontend ###
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install frontend dependencies
+      working-directory: ./FileShare/frontend  
+      run: |
+        npm install
+
+    - name: Test React Build
+      working-directory: ./FileShare/frontend  
+      run: |
+        npm run build
+      # If the build fails, the workflow stops here
+
+    ### Step 3: Test Flask Backend ###
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install backend dependencies
+      working-directory: ./FileShare/backend  
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+
+    - name: Run Flask Backend Test
+      working-directory: ./FileShare/backend  
+      run: |
+        flask run --host=0.0.0.0 &
+        sleep 10
+        curl --fail http://127.0.0.1:5000 || exit 1
+      # This tests if the backend can start successfully and respond at port 5000
+
+    ### Step 4: Deployment (Only on push to main) ###
+    - name: Set up SSH
+      if: github.event_name == 'push'
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy Backend
+      if: github.event_name == 'push'
+      run: |
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
+        cd /home/ubuntu/FileShare/backend  # Path to backend on your server
+        git pull origin main
+        source fshare/bin/activate
+        pip install -r requirements.txt
+        sudo systemctl restart flaskapp
+        EOF
+
+    - name: Deploy Frontend
+      if: github.event_name == 'push'
+      run: |
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
+        cd /home/ubuntu/FileShare/frontend  # Path to frontend on your server
+        git pull origin main
+        npm install
+        npm run build
+        sudo systemctl restart nginx
+        EOF
