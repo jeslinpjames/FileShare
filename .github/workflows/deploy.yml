@@ -78,7 +78,7 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Deploy Backend
-        run: |
+      run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
           cd /home/ubuntu/FileShare/backend
           git restore .  
