@@ -2,3 +2,4 @@ uploads
 frontend\node_modules
 test
 WebRTC
+backend\__pycache__
