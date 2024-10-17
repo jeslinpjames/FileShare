@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Alert from './Alert';
 import { Html5QrcodeScanner } from "html5-qrcode";
+import SERVER_IP from './Config';
 
 const Download = () => {
   const [code, setCode] = useState('');
@@ -17,7 +18,7 @@ const Download = () => {
 
     try {
       const startTime = Date.now();
-      const response = await fetch(`http://13.201.186.207:5000/download`, {
+      const response = await fetch(`${SERVER_IP}/download`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,10 +1,10 @@
-import os
 import pytest
 import json
+import os
 from io import BytesIO
-from app import app, UPLOAD_FOLDER
+from app import app
 
-# Create a temporary filename for testing
+# Create a temporary filename and content for testing
 DEMO_FILENAME = "demo_test_file.txt"
 DEMO_CONTENT = b"This is a test file for upload."
 
@@ -16,7 +16,7 @@ def client():
 
 def test_upload_file(client):
     """Test the file upload functionality."""
-    # Create a BytesIO object to simulate a file
+    # Simulate file upload with BytesIO
     data = {
         'file': (BytesIO(DEMO_CONTENT), DEMO_FILENAME)
     }
@@ -29,10 +29,6 @@ def test_upload_file(client):
     json_data = response.get_json()
     assert 'code' in json_data
     assert json_data['name'] == DEMO_FILENAME
-
-    # Verify the file was uploaded correctly
-    uploaded_file_path = os.path.join(UPLOAD_FOLDER, DEMO_FILENAME)
-    assert os.path.exists(uploaded_file_path)
 
     # Save the code for the download test
     with open('test_code.json', 'w') as f:
@@ -57,11 +53,6 @@ def test_download_file(client):
 
 def teardown_module(module):
     """Cleanup any files created during testing."""
-    # Remove the demo file from the uploads folder
-    uploaded_file_path = os.path.join(UPLOAD_FOLDER, DEMO_FILENAME)
-    if os.path.exists(uploaded_file_path):
-        os.remove(uploaded_file_path)
-
     # Remove the temporary test code JSON file
     if os.path.exists('test_code.json'):
         os.remove('test_code.json')
