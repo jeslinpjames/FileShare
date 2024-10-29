@@ -52,7 +52,7 @@ const P2PFileSharing = () => {
         peerRef.current.destroy();
       }
     };
-  }, []);
+  }, [setupConnection]);
 
   const setupConnection = (conn) => {
     conn.on('data', (data) => {
