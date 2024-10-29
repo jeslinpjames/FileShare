@@ -62,41 +62,41 @@ jobs:
           echo "Unexpected response: $status_code"
           exit 1
         fi
-
+  
   deploy:
-  if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-  needs: test_and_debug
-  runs-on: ubuntu-latest
-
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: Deploy Backend
-      run: |
-        ssh -i /home/runner/.ssh/id_rsa -o StrictHostKeyChecking=no jeslin@${{ secrets.SERVER_IP }} << 'EOF'
-        cd /home/jeslin/FileShare/backend
-        git restore .
-        git reset --hard
-        git pull origin main
-        source fshare/bin/activate
-        pip install -r requirements.txt
-        sudo systemctl restart flaskapp
-        EOF
-
-    - name: Deploy Frontend
-      run: |
-        ssh -i /home/runner/.ssh/id_rsa -o StrictHostKeyChecking=no jeslin@${{ secrets.SERVER_IP }} << 'EOF'
-        cd /home/jeslin/FileShare/frontend
-        git restore .
-        git reset --hard
-        git pull origin main
-        npm install
-        npm run build
-        sudo systemctl restart nginx
-        EOF
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: test_and_debug
+    runs-on: ubuntu-latest
+  
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+  
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+  
+      - name: Deploy Backend
+        run: |
+          ssh -i /home/runner/.ssh/id_rsa -o StrictHostKeyChecking=no jeslin@${{ secrets.SERVER_IP }} << 'EOF'
+          cd /home/jeslin/FileShare/backend
+          git restore .
+          git reset --hard
+          git pull origin main
+          source fshare/bin/activate
+          pip install -r requirements.txt
+          sudo systemctl restart flaskapp
+          EOF
+  
+      - name: Deploy Frontend
+        run: |
+          ssh -i /home/runner/.ssh/id_rsa -o StrictHostKeyChecking=no jeslin@${{ secrets.SERVER_IP }} << 'EOF'
+          cd /home/jeslin/FileShare/frontend
+          git restore .
+          git reset --hard
+          git pull origin main
+          npm install
+          npm run build
+          sudo systemctl restart nginx
+          EOF
