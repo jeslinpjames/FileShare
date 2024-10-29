@@ -18,7 +18,7 @@ const P2PFileSharing = () => {
   const receivedSizeRef = useRef(0);
   const currentFileNameRef = useRef('');
   const localIP = '192.168.1.50';
-  
+
   useEffect(() => {
     peerRef.current = new Peer({
       host: localIP,
@@ -26,7 +26,22 @@ const P2PFileSharing = () => {
       path: '/myapp',
       debug: 3
     });
-
+    
+    const setupConnection = (conn) => {
+      conn.on('data', (data) => {
+        if (data.type === 'file-info') {
+          receiveFileInfo(data);
+        } else if (data.type === 'file-chunk') {
+          receiveFileChunk(data);
+        }
+      });
+  
+      conn.on('error', (error) => {
+        console.error('Connection error:', error);
+        updateStatus('Connection error: ' + error, 'error');
+      });
+    };
+  
     peerRef.current.on('open', (id) => {
       console.log('My peer ID is: ' + id);
       setPeerId(id);
@@ -55,21 +70,7 @@ const P2PFileSharing = () => {
     };
   }, []);
 
-  const setupConnection = (conn) => {
-    conn.on('data', (data) => {
-      if (data.type === 'file-info') {
-        receiveFileInfo(data);
-      } else if (data.type === 'file-chunk') {
-        receiveFileChunk(data);
-      }
-    });
-
-    conn.on('error', (error) => {
-      console.error('Connection error:', error);
-      updateStatus('Connection error: ' + error, 'error');
-    });
-  };
-
+  
   const sendFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file || !recipientId) {
