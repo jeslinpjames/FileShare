@@ -21,7 +21,7 @@ def test_upload_file(client):
     }
 
     # Call the upload API
-    response = client.post('/api/upload', data=data, content_type='multipart/form-data')
+    response = client.post('/upload', data=data, content_type='multipart/form-data')
 
     # Validate response
     assert response.status_code == 200
@@ -40,7 +40,7 @@ def test_download_file(client):
         data = json.load(f)
 
     # Call the download API
-    response = client.post('/api/download', json=data)
+    response = client.post('/download', json=data)
 
     # Validate the download response
     assert response.status_code == 200
