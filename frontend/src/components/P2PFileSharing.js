@@ -17,7 +17,8 @@ const P2PFileSharing = () => {
   const currentFileSizeRef = useRef(0);
   const receivedSizeRef = useRef(0);
   const currentFileNameRef = useRef('');
-  const localIP = '192.168.68.3';
+  const localIP = '192.168.1.50';
+  
   useEffect(() => {
     peerRef.current = new Peer({
       host: localIP,
@@ -52,7 +53,7 @@ const P2PFileSharing = () => {
         peerRef.current.destroy();
       }
     };
-  }, [setupConnection]);
+  }, []);
 
   const setupConnection = (conn) => {
     conn.on('data', (data) => {

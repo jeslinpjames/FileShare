@@ -6,7 +6,7 @@ const app = express();
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
-const localIP = '192.168.68.3'; 
+const localIP = '192.168.1.50'; 
 // Create a PeerJS server
 const peerServer = PeerServer({
     port: 9000,
