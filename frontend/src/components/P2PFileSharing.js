@@ -166,87 +166,161 @@ const P2PFileSharing = () => {
     return Math.round(100 * (bytes / Math.pow(1024, i))) / 100 + ' ' + sizes[i];
   };
 
-  return (
-    <div className="max-w-3xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2">Your Peer ID: 
-            <span className="text-blue-600 ml-2">{peerId}</span>
-          </h2>
-          {status.message && (
-            <div className={`p-4 rounded-md mb-4 ${
-              status.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            }`}>
-              {status.message}
-            </div>
-          )}
-        </div>
+  const [copied, setCopied] = useState(false);
 
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-4">Send File</h3>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select File
-              </label>
-              <input
-                type="file"
-                onChange={sendFile}
-                className="block w-full text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-md file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-blue-50 file:text-blue-700
-                  hover:file:bg-blue-100"
-              />
+  const handleCopyId = () => {
+    navigator.clipboard.writeText(peerId);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 py-8">
+      <div className="max-w-3xl mx-auto p-4">
+        <div className="bg-gray-800 rounded-xl shadow-2xl p-8 border border-gray-700">
+          {/* Header Section */}
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                Your Peer ID: 
+                <span className="text-blue-400 font-mono">{peerId}</span>
+                <button
+                  onClick={handleCopyId}
+                  className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                    copied 
+                      ? 'bg-green-600 text-white' 
+                      : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                  }`}
+                >
+                  {copied ? 'Copied!' : 'Copy ID'}
+                </button>
+              </h2>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Recipient's Peer ID
-              </label>
-              <input
-                type="text"
-                value={recipientId}
-                onChange={(e) => setRecipientId(e.target.value)}
-                placeholder="Enter recipient's peer ID"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md 
-                  shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            {showSendProgress && (
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div 
-                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                  style={{ width: `${sendProgress}%` }}
-                ></div>
+            {status.message && (
+              <div className={`p-4 rounded-lg mb-4 ${
+                status.type === 'success' 
+                  ? 'bg-green-900/50 text-green-300 border border-green-700' 
+                  : 'bg-red-900/50 text-red-300 border border-red-700'
+              }`}>
+                {status.message}
               </div>
             )}
           </div>
-        </div>
 
-        <div>
-          <h3 className="text-xl font-semibold mb-4">Received Files</h3>
-          {showReceiveProgress && (
-            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-              <div 
-                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                style={{ width: `${receiveProgress}%` }}
-              ></div>
-            </div>
-          )}
-          <div className="space-y-2">
-            {receivedFiles.map((file, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                <span className="text-sm text-gray-600">{file.name} ({file.size})</span>
-                <a
-                  href={file.url}
-                  download={file.name}
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                >
-                  Download
-                </a>
+          {/* Send File Section */}
+          <div className="mb-10">
+            <h3 className="text-xl font-semibold mb-6 text-white flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              Send File
+            </h3>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Select File
+                </label>
+                <input
+                  type="file"
+                  onChange={sendFile}
+                  className="block w-full text-sm text-gray-400
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-lg file:border-0
+                    file:text-sm file:font-medium
+                    file:bg-gray-700 file:text-gray-200
+                    hover:file:bg-gray-600
+                    transition duration-150 ease-in-out
+                    cursor-pointer"
+                />
               </div>
-            ))}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Recipient's Peer ID
+                </label>
+                <input
+                  type="text"
+                  value={recipientId}
+                  onChange={(e) => setRecipientId(e.target.value)}
+                  placeholder="Enter recipient's peer ID"
+                  className="mt-1 block w-full px-4 py-3 bg-gray-700 border border-gray-600 
+                    rounded-lg text-gray-200 placeholder-gray-400
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                    transition duration-150 ease-in-out"
+                />
+              </div>
+              {showSendProgress && (
+                <div className="relative pt-1">
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full transition-all duration-300
+                        relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r 
+                        before:from-transparent before:via-white/25 before:to-transparent
+                        before:animate-[shimmer_2s_infinite]"
+                      style={{ width: `${sendProgress}%` }}
+                    >
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Received Files Section */}
+          <div>
+            <h3 className="text-xl font-semibold mb-6 text-white flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+              </svg>
+              Received Files
+            </h3>
+            {showReceiveProgress && (
+              <div className="relative pt-1 mb-6">
+                <div className="w-full bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-blue-500 h-2 rounded-full transition-all duration-300
+                      relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r 
+                      before:from-transparent before:via-white/25 before:to-transparent
+                      before:animate-[shimmer_2s_infinite]"
+                    style={{ width: `${receiveProgress}%` }}
+                  >
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="space-y-3">
+              {receivedFiles.map((file, index) => (
+                <div 
+                  key={index} 
+                  className="flex items-center justify-between p-4 bg-gray-700/50 
+                    rounded-lg border border-gray-600 hover:bg-gray-700 
+                    transition duration-150 ease-in-out"
+                >
+                  <div className="flex items-center space-x-3">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span className="text-sm text-gray-300">{file.name} 
+                      <span className="text-gray-500 ml-2">({file.size})</span>
+                    </span>
+                  </div>
+                  <a
+                    href={file.url}
+                    download={file.name}
+                    className="flex items-center space-x-1 text-blue-400 hover:text-blue-300 
+                      text-sm font-medium transition duration-150 ease-in-out"
+                  >
+                    <span>Download</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                  </a>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

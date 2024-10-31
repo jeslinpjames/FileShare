@@ -60,55 +60,125 @@ const Upload = () => {
   // const networkUrl = `${protocol}//${hostname}:${port || 3000}`;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
-      <h1 className="text-4xl font-bold mb-6 min-h-full">Upload a File</h1>
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      {code ? (
-        <div className="bg-gray-800 p-4 rounded-lg shadow-lg w-full max-w-md text-center">
-          <Alert>
-            Your file transfer code is: <span className="font-bold">{code}</span>
-          </Alert>
-          <p className="mt-2">Share this code with the recipient to allow them to download the file.</p>
-          <p className="mt-2">
-            Upload Speed: {uploadSpeed.mbps} Mbps | {uploadSpeed.MBps} MBps
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 px-4 py-8 md:py-12">
+      <div className="max-w-4xl mx-auto">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 mb-4">
+            Upload
+          </h1>
+          <p className="text-gray-400 text-lg">
+            Share files 
           </p>
-          <div className="mt-4 flex justify-center">
-            {/* <QRCodeSVG value={`${networkUrl}/download?code=${code}`} size={256} /> */}
-            <QRCodeSVG
-              value={code}
-              size={256}
-              fgColor="#00000"  // Custom foreground color
-              bgColor="#ffffff"  // Custom background color
-              level="H"          // Error correction level (L, M, Q, H)
-              style={{ borderRadius: '',padding:'10px' ,backgroundColor:'white'}} // Optional styling for rounded edges
-            />
-          </div>
-          <p className="mt-2 mb-5">Scan this QR code to download the file.</p>
-          <Link to="/" className="mt-4 bg-blue-400 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">
-            Back to Home
-          </Link>
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="bg-gray-800 p-4 rounded-lg shadow-lg w-full max-w-md space-y-4">
-          <input
-            type="file"
-            onChange={handleFileChange}
-            required
-            className="block mx-auto bg-gray-700 text-white p-2 rounded"
-          />
-          <div className="flex justify-between space-x-4 mt-4">
-            <button
-              type="submit"
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mb-5"
-            >
-              Upload
-            </button>
-            <Link to="/" className="flex-1 bg-blue-400 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mb-5">
-              Back to Home
-            </Link>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg mb-6 text-center">
+            {error}
           </div>
-        </form>
-      )}
+        )}
+
+        {/* Success State - After Upload */}
+        {code ? (
+          <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 md:p-8 max-w-2xl mx-auto">
+            <div className="text-center space-y-6">
+              {/* Transfer Code Section */}
+              <div className="bg-gray-900/50 rounded-lg p-6 border border-gray-700">
+                <h2 className="text-xl text-gray-400 mb-2">Your Transfer Code</h2>
+                <p className="text-3xl font-mono font-bold text-blue-400">{code}</p>
+              </div>
+
+              {/* Upload Speed Info */}
+              <div className="flex justify-center gap-8 text-gray-400">
+                <div>
+                  <p className="text-sm">Upload Speed</p>
+                  <p className="text-lg font-semibold">{uploadSpeed.mbps} Mbps</p>
+                </div>
+                <div>
+                  <p className="text-sm">Transfer Rate</p>
+                  <p className="text-lg font-semibold">{uploadSpeed.MBps} MBps</p>
+                </div>
+              </div>
+
+              {/* QR Code Container */}
+              <div className="bg-white p-4 rounded-lg inline-block mx-auto">
+                <QRCodeSVG 
+                  value={code}
+                  size={200}
+                  level="H"
+                />
+              </div>
+              
+              <p className="text-gray-400">
+                Scan QR code or share the transfer code to download
+              </p>
+
+              {/* Action Button */}
+              <Link
+                to="/"
+                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition-colors duration-200"
+              >
+                Back to Home
+              </Link>
+            </div>
+          </div>
+        ) : (
+          /* Upload State */
+          <div className="max-w-2xl mx-auto bg-gray-800/50 border border-gray-700 rounded-xl p-6 md:p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Upload Area */}
+              <div className="border-2 border-dashed border-gray-700 rounded-lg p-8 text-center hover:border-blue-500 transition-colors duration-200">
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  required
+                  className="hidden"
+                  id="file-upload"
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="cursor-pointer block"
+                >
+                  <div className="text-gray-400">
+                    <svg
+                      className="mx-auto h-12 w-12 mb-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                      />
+                    </svg>
+                    <p className="text-lg mb-2">Drop your file here or click to browse</p>
+                    {/* <p className="text-sm">Maximum file size: 2GB</p> */}
+                  </div>
+                </label>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+                >
+                  Upload File
+                </button>
+                <Link
+                  to="/"
+                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors duration-200"
+                >
+                  Cancel
+                </Link>
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
