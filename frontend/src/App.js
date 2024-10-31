@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './components/Home';
 import Upload from './components/Upload';
 import Download from './components/Download';
+import WatchParty from './components/WatchParty'; 
 import P2PFileSharing from './components/P2PFileSharing';
 
 const App = () => {
@@ -12,6 +13,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/upload" element={<Upload />} />
         <Route path="/download" element={<Download />} />
+        <Route path="/watchparty" element={<WatchParty />} /> {/* Add WatchParty route */}
         <Route path="/p2p" element={<P2PFileSharing />} />
       </Routes>
     </Router>

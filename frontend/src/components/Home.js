@@ -17,6 +17,12 @@ const Home = () => (
       >
         Download a File
       </Link>
+      <Link
+        to="/watchparty"
+        className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded transition duration-300 ease-in-out shadow-lg transform hover:scale-105"
+      >
+        Watch Party
+      </Link>
     </div>
     
   </div>
