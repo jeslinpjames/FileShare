@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 # Allow requests from frontend domain
 CORS(app, resources={r"/api/*": {"origins": "https://sharemore.online"}})
-socketio = SocketIO(app, cors_allowed_origins="*", path="/api/socket.io")
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 
 # Store active transfers

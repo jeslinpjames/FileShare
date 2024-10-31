@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import ReactPlayer from 'react-player';
 import { Link } from 'react-router-dom';
-import SERVER_IP from './Config';
 import Navbar from './Navbar';
+
+const SERVER_IP = 'https://sharemore.online'; 
+
 
 const WatchParty = () => {
   const [room, setRoom] = useState('');
