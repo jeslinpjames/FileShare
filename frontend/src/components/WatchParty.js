@@ -15,7 +15,11 @@ const WatchParty = () => {
   const isControlledRef = useRef(false);
 
   useEffect(() => {
-    socketRef.current = io(SERVER_IP);
+    socketRef.current = io(SERVER_IP, {
+      path: '/socket.io', 
+      transports: ['websocket'], 
+      secure: true, 
+    });
 
     socketRef.current.on('connect', () => {
       console.log('Connected to SocketIO server');
@@ -23,7 +27,7 @@ const WatchParty = () => {
 
     socketRef.current.on('video_event', (data) => {
       if (data.type === 'url') {
-        setVideoUrl(data.url); // Set the video URL when received
+        setVideoUrl(data.url); // Set video URL if received 
       } else if (data.type === 'play' && playerRef.current) {
         isControlledRef.current = true;
         playerRef.current.seekTo(data.currentTime);
