@@ -17,13 +17,13 @@ const P2PFileSharing = () => {
   const currentFileSizeRef = useRef(0);
   const receivedSizeRef = useRef(0);
   const currentFileNameRef = useRef('');
-  const localIP = '35.200.252.185';
+  // const localIP = '35.200.252.185';
   
   useEffect(() => {
     peerRef.current = new Peer({
-      host: localIP,
-      port: 9000,
-      path: '/myapp',
+      host: '0.peerjs.com',
+      port: 443,
+      secure: true,
       debug: 3
     });
 
