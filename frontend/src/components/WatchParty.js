@@ -15,11 +15,7 @@ const WatchParty = () => {
   const isControlledRef = useRef(false);
 
   useEffect(() => {
-    socketRef.current = io(SERVER_IP, {
-      path: '/socket.io', 
-      transports: ['websocket'], 
-      secure: true, 
-    });
+    socketRef.current = io(SERVER_IP);
 
     socketRef.current.on('connect', () => {
       console.log('Connected to SocketIO server');
