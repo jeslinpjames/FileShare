@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Navbar from './Navbar';
 
 const FeatureCard = ({ to, title, description, bgColor, iconColor, borderColor }) => (
+  
   <Link
     to={to}
     className={`group p-8 rounded-2xl transition-all duration-300 ease-in-out
@@ -28,6 +30,8 @@ const FeatureCard = ({ to, title, description, bgColor, iconColor, borderColor }
 );
 
 const Home = () => (
+  <>
+  <Navbar />
   <div className="min-h-screen bg-slate-950">
     <div className="max-w-7xl mx-auto px-4 py-20">
       {/* Hero Section */}
@@ -109,6 +113,7 @@ const Home = () => (
       </div>
     </div>
   </div>
+  </>
 );
 
 export default Home;

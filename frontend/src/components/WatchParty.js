@@ -3,13 +3,14 @@ import { io } from 'socket.io-client';
 import ReactPlayer from 'react-player';
 import { Link } from 'react-router-dom';
 import SERVER_IP from './Config';
+import Navbar from './Navbar';
 
 const WatchParty = () => {
   const [room, setRoom] = useState('');
   const [joined, setJoined] = useState(false);
   const [videoUrl, setVideoUrl] = useState('');
   const [inputUrl, setInputUrl] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
+  // const [isCreating, setIsCreating] = useState(false);
   const socketRef = useRef();
   const playerRef = useRef(null);
   const isControlledRef = useRef(false);
@@ -129,10 +130,14 @@ const WatchParty = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen bg-gray-900 p-4 md:p-8">
       {!joined ? (
         <div className="max-w-md mx-auto mt-16">
-          <h1 className="text-4xl font-bold text-white text-center mb-12">Watch Party</h1>
+          <h1 className="text-center text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-red-500 mb-4">
+            Watch Party
+          </h1>
           
           <div className="space-y-6">
             <div className="space-y-3">
@@ -171,11 +176,11 @@ const WatchParty = () => {
           </div>
           
           <Link
-            to="/"
-            className="block text-center mt-8 text-gray-400 hover:text-white"
-          >
-            Back to Home
-          </Link>
+  to="/"
+  className="block text-center mt-8 text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg px-4 py-2 transition duration-200"
+>
+  Back to Home
+</Link>
         </div>
       ) : (
         <div className="max-w-6xl mx-auto">
@@ -244,6 +249,7 @@ const WatchParty = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 export default WatchParty;

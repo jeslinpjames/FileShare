@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Peer } from 'peerjs';
+import Navbar from './Navbar';
 
 const P2PFileSharing = () => {
   const [peerId, setPeerId] = useState('Connecting...');
@@ -175,7 +176,12 @@ const P2PFileSharing = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen bg-gray-900 py-8">
+    <h1 className="text-center text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-500 mb-4">
+            Share Via P2P
+          </h1>
       <div className="max-w-3xl mx-auto p-4">
         <div className="bg-gray-800 rounded-xl shadow-2xl p-8 border border-gray-700">
           {/* Header Section */}
@@ -325,6 +331,7 @@ const P2PFileSharing = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

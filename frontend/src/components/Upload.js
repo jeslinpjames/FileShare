@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Alert from './Alert';
+// import Alert from './Alert';
 import { QRCodeSVG } from 'qrcode.react';
 import SERVER_IP from './Config';
-// const SERVER_IP = '192.168.68.3';
+import Navbar from './Navbar';
 
 const Upload = () => {
   const [file, setFile] = useState(null);
@@ -60,12 +60,14 @@ const Upload = () => {
   // const networkUrl = `${protocol}//${hostname}:${port || 3000}`;
 
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 px-4 py-8 md:py-12">
       <div className="max-w-4xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 mb-4">
-            Upload
+            Upload 
           </h1>
           <p className="text-gray-400 text-lg">
             Share files 
@@ -180,6 +182,7 @@ const Upload = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

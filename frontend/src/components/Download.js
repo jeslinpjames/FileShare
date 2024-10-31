@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import Alert from './Alert';
+// import Alert from './Alert';
 import { Html5QrcodeScanner } from "html5-qrcode";
 import SERVER_IP from './Config';
+import Navbar from './Navbar';
 
 const Download = () => {
   const [code, setCode] = useState('');
@@ -110,6 +111,8 @@ const Download = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 px-4 py-8 md:py-12">
       <div className="max-w-4xl mx-auto">
         {/* Header Section */}
@@ -222,6 +225,7 @@ const Download = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
