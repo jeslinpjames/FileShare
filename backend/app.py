@@ -10,8 +10,6 @@ app = Flask(__name__)
 
 # Allow requests from frontend domain
 CORS(app, resources={r"/api/*": {"origins": "https://sharemore.online"}})
-app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "https://sharemore.online"}})
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 
@@ -101,4 +99,4 @@ def handle_options():
     return '', 204
 
 if __name__ == "__main__":
-    socketio.run(app, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)
