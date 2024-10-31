@@ -81,8 +81,8 @@ jobs:
         run: |
           ssh -i /home/runner/.ssh/id_rsa -o StrictHostKeyChecking=no jeslin@${{ secrets.SERVER_IP }} << 'EOF'
           cd /home/jeslin/FileShare/backend
-          git restore .
-          git reset --hard
+          git reset --hard    # Discard any local changes
+          git clean -fd       # Remove untracked files
           git pull origin main
           source fshare/bin/activate
           pip install -r requirements.txt
@@ -93,8 +93,8 @@ jobs:
         run: |
           ssh -i /home/runner/.ssh/id_rsa -o StrictHostKeyChecking=no jeslin@${{ secrets.SERVER_IP }} << 'EOF'
           cd /home/jeslin/FileShare/frontend
-          git restore .
-          git reset --hard
+          git reset --hard    # Discard any local changes
+          git clean -fd       # Remove untracked files
           git pull origin main
           npm install
           npm run build
