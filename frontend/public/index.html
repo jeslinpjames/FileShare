@@ -2,42 +2,65 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/png" href="%PUBLIC_URL%/image.png" />
+    <link rel="icon" type="image/png" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
+
+    <!-- Primary Meta Tags -->
+    <title>Share More - File Sharing, Watch Party & P2P Sharing</title>
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Share More is a platform for seamless file sharing, real-time watch parties, and secure P2P file transfers. Easily share and enjoy content with others in one place."
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+    <meta
+      name="keywords"
+      content="file sharing, watch party, P2P sharing, share files, real-time video, content sharing"
+    />
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>Share More</title>
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://sharemore.online" />
+    <meta property="og:title" content="Share More - File Sharing, Watch Party & P2P Sharing" />
+    <meta
+      property="og:description"
+      content="Share More is a platform for seamless file sharing, real-time watch parties, and secure P2P file transfers. Easily share and enjoy content with others in one place."
+    />
+    <meta property="og:image" content="%PUBLIC_URL%/logo512.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://sharemore.online" />
+    <meta name="twitter:title" content="Share More - File Sharing, Watch Party & P2P Sharing" />
+    <meta
+      name="twitter:description"
+      content="Share More is a platform for seamless file sharing, real-time watch parties, and secure P2P file transfers. Easily share and enjoy content with others in one place."
+    />
+    <meta name="twitter:image" content="%PUBLIC_URL%/logo512.png" />
+
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+
+    <!-- Manifest for Mobile PWA -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Share More",
+        "url": "https://sharemore.online",
+        "description": "A platform for file sharing, real-time watch parties, and P2P file sharing.",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://sharemore.online?search={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>
