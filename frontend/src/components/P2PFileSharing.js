@@ -60,6 +60,7 @@ const P2PFileSharing = () => {
         scannerRef.current.clear();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const initializeScanner = () => {
