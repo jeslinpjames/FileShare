@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import { MessageCircle, X, Send, Users } from 'lucide-react';
 
-const SERVER_IP = 'http://127.0.0.1:5000';
+const SERVER_IP = 'https://sharemore.online';
 
 const WatchParty = () => {
   const [room, setRoom] = useState('');
