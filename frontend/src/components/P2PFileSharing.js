@@ -264,17 +264,26 @@ const P2PFileSharing = () => {
                   Select File
                 </label>
                 <input
-                  type="file"
-                  onChange={sendFile}
-                  className="block w-full text-sm text-gray-400
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-lg file:border-0
-                    file:text-sm file:font-medium
-                    file:bg-gray-700 file:text-gray-200
-                    hover:file:bg-gray-600
-                    transition duration-150 ease-in-out
-                    cursor-pointer"
-                />
+                type="file"
+                onChange={sendFile}
+                disabled={!recipientId} // Disable if recipientId is empty
+                className={`block w-full text-sm text-gray-400 
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-lg file:border-0
+                file:text-sm file:font-medium
+                file:bg-gray-700 file:text-gray-200
+              ${
+                !recipientId
+                  ? 'cursor-not-allowed opacity-50' // Disabled style
+                  : 'hover:file:bg-gray-600 cursor-pointer' // Enabled style
+                }
+                transition duration-150 ease-in-out`}
+              />
+                {!recipientId && (
+          <p className="text-sm text-red-500 mt-2">
+            Please enter a recipient ID or scan QR to enable file selection.
+          </p>
+        )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
