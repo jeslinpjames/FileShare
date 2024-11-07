@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Peer } from 'peerjs';
+import QRCode from 'react-qr-code';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 import Navbar from './Navbar';
 
 const P2PFileSharing = () => {
@@ -11,6 +13,7 @@ const P2PFileSharing = () => {
   const [recipientId, setRecipientId] = useState('');
   const [showSendProgress, setShowSendProgress] = useState(false);
   const [showReceiveProgress, setShowReceiveProgress] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   const peerRef = useRef(null);
   const currentConnectionRef = useRef(null);
@@ -18,8 +21,8 @@ const P2PFileSharing = () => {
   const currentFileSizeRef = useRef(0);
   const receivedSizeRef = useRef(0);
   const currentFileNameRef = useRef('');
-  // const localIP = '35.200.252.185';
-  
+  const scannerRef = useRef(null);
+
   useEffect(() => {
     peerRef.current = new Peer({
       host: '0.peerjs.com',
@@ -53,9 +56,39 @@ const P2PFileSharing = () => {
       if (peerRef.current) {
         peerRef.current.destroy();
       }
+      if (scannerRef.current) {
+        scannerRef.current.clear();
+      }
     };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const initializeScanner = () => {
+    setShowScanner(true);
+    
+    // Wait for DOM element to be created
+    setTimeout(() => {
+      scannerRef.current = new Html5QrcodeScanner("qr-reader", {
+        qrbox: { width: 250, height: 250 },
+        fps: 5,
+      });
+  
+      scannerRef.current.render(onScanSuccess, onScanError);
+    }, 0);
+  };
+
+  const onScanSuccess = (decodedText) => {
+    setRecipientId(decodedText);
+    setShowScanner(false);
+    if (scannerRef.current) {
+      scannerRef.current.clear();
+    }
+    updateStatus('QR Code scanned successfully!', 'success');
+  };
+
+  const onScanError = (error) => {
+    console.warn(`QR Code scan error: ${error}`);
+  };
 
   const setupConnection = (conn) => {
     conn.on('data', (data) => {
@@ -179,16 +212,16 @@ const P2PFileSharing = () => {
     <>
     <Navbar/>
     <div className="min-h-screen bg-gray-900 py-8">
-    <h1 className="text-center text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-500 mb-4">
-            Share Via P2P
-          </h1>
+      <h1 className="text-center text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-500 mb-4">
+        Share Via P2P
+      </h1>
       <div className="max-w-3xl mx-auto p-4">
         <div className="bg-gray-800 rounded-xl shadow-2xl p-8 border border-gray-700">
-          {/* Header Section */}
+          {/* Your Peer ID Section with QR Code */}
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex flex-col items-center gap-4 mb-6">
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                Your Peer ID: 
+                Your Peer ID:
                 <span className="text-blue-400 font-mono">{peerId}</span>
                 <button
                   onClick={handleCopyId}
@@ -201,6 +234,9 @@ const P2PFileSharing = () => {
                   {copied ? 'Copied!' : 'Copy ID'}
                 </button>
               </h2>
+              <div className="p-4 bg-white rounded-lg">
+                <QRCode value={peerId} size={200} />
+              </div>
             </div>
             {status.message && (
               <div className={`p-4 rounded-lg mb-4 ${
@@ -213,7 +249,7 @@ const P2PFileSharing = () => {
             )}
           </div>
 
-          {/* Send File Section */}
+          {/* Send File Section with QR Scanner */}
           <div className="mb-10">
             <h3 className="text-xl font-semibold mb-6 text-white flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,33 +264,60 @@ const P2PFileSharing = () => {
                   Select File
                 </label>
                 <input
-                  type="file"
-                  onChange={sendFile}
-                  className="block w-full text-sm text-gray-400
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-lg file:border-0
-                    file:text-sm file:font-medium
-                    file:bg-gray-700 file:text-gray-200
-                    hover:file:bg-gray-600
-                    transition duration-150 ease-in-out
-                    cursor-pointer"
-                />
+                type="file"
+                onChange={sendFile}
+                disabled={!recipientId} // Disable if recipientId is empty
+                className={`block w-full text-sm text-gray-400 
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-lg file:border-0
+                file:text-sm file:font-medium
+                file:bg-gray-700 file:text-gray-200
+              ${
+                !recipientId
+                  ? 'cursor-not-allowed opacity-50' // Disabled style
+                  : 'hover:file:bg-gray-600 cursor-pointer' // Enabled style
+                }
+                transition duration-150 ease-in-out`}
+              />
+                {!recipientId && (
+          <p className="text-sm text-red-500 mt-2">
+            Please enter a recipient ID or scan QR to enable file selection.
+          </p>
+        )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Recipient's Peer ID
                 </label>
-                <input
-                  type="text"
-                  value={recipientId}
-                  onChange={(e) => setRecipientId(e.target.value)}
-                  placeholder="Enter recipient's peer ID"
-                  className="mt-1 block w-full px-4 py-3 bg-gray-700 border border-gray-600 
-                    rounded-lg text-gray-200 placeholder-gray-400
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                    transition duration-150 ease-in-out"
-                />
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={recipientId}
+                    onChange={(e) => setRecipientId(e.target.value)}
+                    placeholder="Enter recipient's peer ID"
+                    className="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 
+                      rounded-lg text-gray-200 placeholder-gray-400
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                      transition duration-150 ease-in-out"
+                  />
+                  <button
+                    onClick={initializeScanner}
+                    className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500
+                      transition duration-150 ease-in-out flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                    </svg>
+                    Scan QR
+                  </button>
+                </div>
               </div>
+              {showScanner && (
+                <div className="mt-4">
+                  <div id="qr-reader" className="w-full max-w-sm mx-auto"></div>
+                </div>
+              )}
               {showSendProgress && (
                 <div className="relative pt-1">
                   <div className="w-full bg-gray-700 rounded-full h-2">
@@ -271,7 +334,6 @@ const P2PFileSharing = () => {
               )}
             </div>
           </div>
-
           {/* Received Files Section */}
           <div>
             <h3 className="text-xl font-semibold mb-6 text-white flex items-center gap-2">
